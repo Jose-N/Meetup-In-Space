@@ -1,0 +1,24 @@
+<h1>UPDATE MEETUP</h1>
+
+<form action="/meetups/update" method="post">
+  <h3><%= @name_error%></h3>
+  <label for="name">Name</label>
+  <input type="text" name="name" id="name" class="input" value="<%= @name %>">
+  <br/>
+  <br/>
+
+  <h3><%= @location_error%></h3>
+  <label for="location">Location</label>
+  <input type="text" name="location" id="location" class="input" value="<%= @location %>">
+  <br/>
+  <br/>
+
+  <h3><%= @description_error%></h3>
+  <label for="description">Description</label>
+  <input type="text" name="description" id="description" class="input" value="<%= @description %>">
+  <br/>
+  <br/>
+
+  <input type="submit" id="submit" value="SUBMIT" class="input">
+  <h3><%= @creator_error %></h3>
+</form>

@@ -1,0 +1,19 @@
+<h1 class="meetup-name"><%= @meetup['name'] %></h1>
+<form class="join-form" action="/meetups/<%= @meetup_id %>" method="post">
+  <input type="hidden" name="user_id" value=<%= @user_id %>>
+  <input type="hidden" name="meetup_id" value=<%= @meetup_id %>>
+  <input class="join-button" type="submit" value="Join Meetup">
+</form>
+</h1>
+<br/>
+<p>Location: <%= @meetup['location'] %></p>
+<p>Creator: <%= @creator_name %></p>
+<br/>
+<h4>Description</h4>
+<p><%= @meetup['description'] %></p>
+<h4>Attending <%= @hi %></h4>
+<ul>
+  <% @going.each do |person|%>
+    <li><img src="<%= person['avatar_url'] %>" height="40" width="40"> <%= person['username'] %></li>
+  <% end %>
+</ul>
