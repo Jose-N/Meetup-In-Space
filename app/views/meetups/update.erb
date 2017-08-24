@@ -1,6 +1,6 @@
 <h1>UPDATE MEETUP</h1>
 
-<form action="/meetups/update" method="post">
+<form action="/meetups/update/<%= @meetup['id'] %>" method="post">
   <h3><%= @name_error%></h3>
   <label for="name">Name</label>
   <input type="text" name="name" id="name" class="input" value="<%= @name %>">
@@ -20,5 +20,4 @@
   <br/>
 
   <input type="submit" id="submit" value="SUBMIT" class="input">
-  <h3><%= @creator_error %></h3>
 </form>

@@ -14,6 +14,9 @@ group :development, :test do
   gem 'launchy'
   gem 'dotenv'
   gem 'faker'
+  gem 'shoulda'
+  gem 'shoulda-matchers'
+  gem 'valid_attribute'
 end
 
 group :test do

@@ -43,10 +43,6 @@ get '/meetups/new' do
 end
 
 post '/meetups/new' do
-  @name_error = ''
-  @description_error = ''
-  @location_error = ''
-  @creator_error = ''
   @name = params['name']
   @description = params['description']
   @location = params['location']
@@ -60,7 +56,7 @@ post '/meetups/new' do
       creator: creator
     )
 
-    redirect '/meetups'
+    redirect "/meetups/#{Meetup.last.id}"
   else
     if @name.strip() == ''
       @name_error = 'Meetup Must Have A Name'
@@ -82,6 +78,115 @@ post '/meetups/new' do
   end
 end
 
+post '/meetups/comment' do
+  @body = params[:body]
+  @meetup_id = params[:meetup_id]
+  @user_id = params[:user_id]
+  @attendee = Meetup.find(@meetup_id).users.exists?(@user_id)
+
+  if @body.strip != '' && @user_id != '' && @meetup != '' && @attendee
+    Comment.create(
+      meetup_id: @meetup_id.to_i,
+      user_id: @user_id.to_i,
+      body: @body
+    )
+  else
+    if !@attendee
+      flash[:notice] = "Must Join Meetup To Leave Comment"
+      query = params.map{|key, value| "#{key}=#{value}"}.join("&")
+      redirect to("/meetups/#{@meetup_id.to_i}?#{query}")
+    end
+  end
+  redirect "/meetups/#{@meetup_id.to_i}"
+end
+
+get '/meetups/update/:id' do
+  @meetup = Meetup.find(params[:id])
+  @name = @meetup['name']
+  @location = @meetup['location']
+  @description = @meetup['description']
+
+  if session['user_id'].to_i != @meetup['creator'].to_i 
+    flash[:notice] = "You Can Not Edit A Meetup If You Did Not Create It"
+
+    redirect '/'
+  end
+
+  erb :'meetups/update'
+end
+
+post '/meetups/update/:id' do
+  id = params[:id]
+  @meetup = Meetup.find(id)
+  @name = params['name']
+  @description = params['description']
+  @location = params['location']
+
+
+  if @name.strip() != '' && @description.strip() != '' && @location.strip() != ''
+    Meetup.update(
+      id,
+      :name => @name,
+      :location => @location,
+      :description => @description
+    )
+
+    flash[:notice] = "Successully Edited Meetup"
+
+    redirect "/meetups/#{id}"
+  else
+    if @name.strip() == ''
+      @name_error = 'Meetup Must Have A Name'
+    end
+
+    if @description.strip() == ''
+      @description_error = 'Meetup Must Have A Description'
+    end
+
+    if @location.strip() == ''
+      @location_error = 'Meetup Must Have A Location'
+    end
+
+    erb :'/meetups/update'
+  end
+end
+
+get '/meetups/destroy/:id' do
+  @meetup = Meetup.find(params[:id])
+  if session['user_id'].to_i != @meetup['creator'].to_i 
+    flash[:notice] = "You Do Not Have Permission To Delete This Meetup"
+
+    redirect '/'
+  else
+    @meetup.destroy
+    flash[:notice] = "Successully Deleted Meetup"
+    redirect '/'
+  end
+
+end
+
+get '/meetups/:id' do
+  @meetup = Meetup.find(params[:id])
+  @creator_name = User.find(@meetup['creator'])['username']
+  @user_id = session['user_id']
+  @meetup_id = params[:id]
+  @going = Meetup.find(@meetup_id).users
+  @logged_in =  !@user_id.nil?
+  @comments = @meetup.comments
+
+  if session['user_id'].to_i == @meetup['creator'].to_i 
+    @owner = true 
+  else
+    if Meetup.find(@meetup_id).users.exists?(@user_id)
+      @button = "Leave Meetup"
+    else
+      @button = "Join Meetup"
+    end
+  end
+
+  erb :'meetups/show'
+end
+
 post '/meetups/:id' do
   @user_id = params['user_id']
   @meetup_id = params['meetup_id']
@@ -91,8 +196,6 @@ post '/meetups/:id' do
       user_id: @user_id,
       meetup_id: @meetup_id
     )
-
-    flash[:notice] = "You signed up for the #{Meetup.find(@meetup_id)['name']}"
 
     redirect "/meetups/#{@meetup_id}"
   else 
@@ -105,22 +208,10 @@ post '/meetups/:id' do
     end
 
     if Meetup.find(@meetup_id).users.exists?(@user_id)
-      flash[:notice] = 'You already joined this meetup'
+      to_be_removed = Rsvp.where(["user_id = ? and meetup_id = ?", @user_id, @meetup_id])
+      to_be_removed[0].destroy
     end
 
     redirect "/meetups/#{@meetup_id}"
   end
-end
-
-get '/meetups/:id' do
-  @meetup = Meetup.find(params[:id])
-  @creator_name = User.find(@meetup['creator'])['username']
-  @user_id = session['user_id']
-  @meetup_id = params[:id]
-  @going = Meetup.find(@meetup_id).users
-  if session['user_id'].to_i == @meetup['creator'] 
-    @hi = 'hi'
-  end
-
-  erb :'meetups/show'
 end

@@ -1,9 +1,24 @@
 <h1 class="meetup-name"><%= @meetup['name'] %></h1>
-<form class="join-form" action="/meetups/<%= @meetup_id %>" method="post">
-  <input type="hidden" name="user_id" value=<%= @user_id %>>
-  <input type="hidden" name="meetup_id" value=<%= @meetup_id %>>
-  <input class="join-button" type="submit" value="Join Meetup">
-</form>
+<% if !@owner %>
+  <form class="join-form" action="/meetups/<%= @meetup_id %>" method="post">
+    <input type="hidden" name="user_id" value=<%= @user_id %>>
+    <input type="hidden" name="meetup_id" value=<%= @meetup_id %>>
+    <input class="join-button" type="submit" value="<%= @button %>">
+  </form>
+<% else %>
+  <div class="owner-buttons">
+    <a href="/meetups/update/<%= @meetup_id %>">
+      <h2 class="button" id="edit">
+        EDIT
+      </h2>
+    </a>
+    <a href="/meetups/destroy/<%= @meetup_id %>">
+      <h2 class="button" id="delete">
+        DELETE
+      </h2>
+    </a>
+  </div>
+<% end %>
 </h1>
 <br/>
 <p>Location: <%= @meetup['location'] %></p>
@@ -13,7 +28,26 @@
 <p><%= @meetup['description'] %></p>
 <h4>Attending <%= @hi %></h4>
 <ul>
-  <% @going.each do |person|%>
+  <% Meetup.find(@meetup_id).users.each do |person|%>
     <li><img src="<%= person['avatar_url'] %>" height="40" width="40"> <%= person['username'] %></li>
+  <% end %>
+</ul>
+<h4>Comments</h4>
+<% if @logged_in %>
+  <form action="/meetups/comment" method='post'>
+    <label for="body">Commment</label>
+    <br>
+    <br>
+    <input class="input" type="text" id="body" name="body" value=<%= params['body'] %>>
+    <input type="hidden" id="meetup_id" name="meetup_id" value=<%= @meetup_id %>>
+    <input type="hidden" id="user_id" name="user_id" value=<%= @user_id %>>
+    <input type="submit" value='submit' class="input">
+  </form>
+<% else %>
+  <p>Please sign in to leave a comment</p>
+<% end %>
+<ul>
+  <% @meetup.comments.each do |comment|%>
+    <li><%= comment.user['username'] %> - <%= comment['body'] %></li>
   <% end %>
 </ul>

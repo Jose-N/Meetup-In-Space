@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
   has_many :rsvps
   has_many :meetups, through: :rsvps 
+  has_many :comments, :dependent => :destroy
 
   def self.find_or_create_from_omniauth(auth)
     provider = auth.provider

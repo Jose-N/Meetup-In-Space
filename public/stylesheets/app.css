@@ -60,3 +60,22 @@ a:visited {
   display: inline-block;
   float: right;
 }
+
+.owner-buttons {
+  display: inline-block;
+  float: right;
+}
+
+.button {
+  display: inline-block;
+  margin: 10px;
+  margin-top: 21.440px;
+}
+
+#delete {
+  color: red;
+}
+
+#edit {
+  color: grey;
+}

@@ -15,4 +15,6 @@ RSpec.configure do |config|
   end
   OmniAuth.config.test_mode = true
   config.include AuthenticationHelper
+    config.include(Shoulda::Matchers::ActiveModel, type: :model)
+  config.include(Shoulda::Matchers::ActiveRecord, type: :model)
 end
